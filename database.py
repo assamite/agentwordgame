@@ -14,7 +14,7 @@ class Database:
 		self.db = sqlite3.connect("gamestate.sqlite")
 		self.db.execute("CREATE TABLE IF NOT EXISTS agent(id string primary key, name string)")
 		self.db.execute("CREATE TABLE IF NOT EXISTS word(id string primary key, word string, timestamp timestamp DEFAULT NOW, agent_id string, explanation string)")
-		self.db.execute("CREATE TABLE IF NOT EXISTS word_score(word_id string, agent_id string, score float,timestamp timestamp DEFAULT NOW)")
+		self.db.execute("CREATE TABLE IF NOT EXISTS word_score(word_id string, agent_id string, score float, framing string, timestamp timestamp DEFAULT NOW)")
 		self.db.execute("CREATE TABLE IF NOT EXISTS attribute(function_name string, name string, agent_id string, function string)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_1 ON agent(id)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_2 ON word(id)")
@@ -42,7 +42,7 @@ class Database:
 			return -1
 		return 1
 
-	def addScore(self, word_id, agent_id, score):
+	def addScore(self, word_id, agent_id, score, framing):
 		cursor = self.db.execute("SELECT agent_id FROM word WHERE id=?", [word_id])
 		result = cursor.fetchall()
 		if result[0][0] == agent_id:
@@ -52,7 +52,7 @@ class Database:
 		if len(result) > 0:
 			return str(self.SCORE_EXISTS)
 		else:
-			cursor = self.db.execute("INSERT INTO word_score(word_id, agent_id, score) VALUES(?, ?, ?)", [word_id, agent_id, score])
+			cursor = self.db.execute("INSERT INTO word_score(word_id, agent_id, score,framing) VALUES(?, ?, ?, ?)", [word_id, agent_id, score, framing])
 			self.db.commit()
 			return "1"
 			
@@ -62,7 +62,7 @@ class Database:
 		return scores
 		
 	def getAllFeedback(self):
-		cursor = self.db.execute("SELECT word_score.word_id, word_score.agent_id, word.word, word.timestamp, word.explanation, word.agent_id, word_score.score FROM word_score LEFT JOIN word ON word_id=word.id")
+		cursor = self.db.execute("SELECT word_score.word_id, word_score.agent_id, word.word, word.timestamp, word.explanation, word.agent_id, word_score.score, word_score.framing FROM word_score LEFT JOIN word ON word_id=word.id")
 		scores = cursor.fetchall()
 		return scores
 			

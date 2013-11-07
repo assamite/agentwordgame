@@ -1,6 +1,6 @@
 <attribute>
 <name>
-Phrase Length
+Phrase Length (standard)
 </name>
 	<function>
 def phraseLength(phrase):
@@ -10,7 +10,7 @@ def phraseLength(phrase):
 
 <attribute>
 <name>
-Phrase Vowels
+Phrase Vowels (standard)
 </name>
 <function>
 def phraseVowels(phrase):
@@ -21,7 +21,7 @@ def phraseVowels(phrase):
 
 <attribute>
 <name>
-Phrase Consonants
+Phrase Consonants (standard)
 </name>
 <function>
 def phraseConsonants(phrase):

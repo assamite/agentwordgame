@@ -3,11 +3,6 @@ import cherrypy
 from collections import defaultdict
 import pickle
 
-## TODO:
-##
-## 
-## 
-
 class Server:
 		
 	def registerAgent(self, agent):
@@ -23,9 +18,9 @@ class Server:
 	def ping(self):
 		return "works"
 		
-	def setFeedback(self, agent_id, word_id, score):
+	def setFeedback(self, agent_id, word_id, score, framing):
 		db = DB.Database()
-		ret = db.addScore(word_id, agent_id, score)
+		ret = db.addScore(word_id, agent_id, score, framing)
 		return ret
 		
 	def getMyFeedback(self, agent_id):
@@ -33,7 +28,7 @@ class Server:
 		feedback = db.getAgentFeedback(agent_id)
 		return pickle.dumps(feedback)
 		
-	def getAllFeedback(self, agent_id):
+	def getAllFeedback(self):
 		db = DB.Database()
 		feedback = db.getAllFeedback()
 		return pickle.dumps(feedback)	

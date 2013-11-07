@@ -2,8 +2,10 @@ import agent
 import random
 import time
 
-class AgentImpl(agent.Agent):
-
+class VowelAgent(agent.Agent):
+	"""
+    AgentImpl implements a sample functional agent.
+    """
 	def __init__(self, name):
 		# Anything you want to initialize
 		self.vowelWeight = random.random()
@@ -12,25 +14,34 @@ class AgentImpl(agent.Agent):
 		agent.Agent.__init__(self, name)
 		
 	def lifeCycle(self):
+		"""
+		The function which is repeatedly started and defines the behaviour
+		of the agent in the context of adaption, scoring and generating.
+		"""
 		r = random.random()
 		if r < 0.33:
 			self.generate()
 		if r > 0.33 and r < 0.66:
 			## Gives the lists of lists, where each sublist is, ordered by timestamp desc:
-			## [UnscoredWord, UnscoredWord], see documentation
+			## [Word, Word], see documentation
 			unratedwords = self.getUnscoredWords()
 			if len(unratedwords) > 0:
 				scr = self.score(unratedwords[0].word)
 				self.sendFeedback(unratedwords[0].word_id, scr, wordtext=unratedwords[0].word)
 		elif r > 0.66:
 			## The result is the following:
-			## [MyFeedback, MyFeedback], see documentation
+			## [Feedback, Feedback], see documentation
 			feedback = self.getMyFeedback()
 			self.adapt(feedback)
 			
 		#time.sleep(1)
 		
 	def score(self, word):
+		"""
+		score implements a sample function which gives a score to a word. In this case
+		it the score is calculated such, that the word has a desired fraction of
+		consonants and vowels.
+		"""
 		vowels = 0.0
 		consonants = 0.0
 		vowelstr = "aeiou"
@@ -44,6 +55,11 @@ class AgentImpl(agent.Agent):
 		return scr
 		
 	def generate(self):
+		"""
+		generate implements a sample function which generates a word with random
+		length. The system makes a distinction between consonants and vowels and generates
+		words by using a self.generateVowel variable, which adapts to the feedback.
+		"""
 		strlen = random.randint(1,10)
 		word = ""
 		vowels = "aeiou"
@@ -59,6 +75,10 @@ class AgentImpl(agent.Agent):
 		self.propose(word, explanation)
 		
 	def adapt(self, feedback):
+		"""
+		adapt implements a sample function which changes the self.generateVowel
+		according to the feedback of other agents.
+		"""
 		vowelsCount = 0.0
 		consCount = 0.0
 		vowels = "aeiou"

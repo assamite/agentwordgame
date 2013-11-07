@@ -1,0 +1,139 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module agent</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>agent</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/oskar/Desktop/agentwordgame/agent.py">/Users/oskar/Desktop/agentwordgame/agent.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="csv.html">csv</a><br>
+<a href="pickle.html">pickle</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top><a href="urllib.html">urllib</a><br>
+<a href="urllib2.html">urllib2</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="agent.html#Agent">Agent</a>
+</font></dt><dt><font face="helvetica, arial"><a href="agent.html#Feedback">Feedback</a>
+</font></dt><dt><font face="helvetica, arial"><a href="agent.html#Word">Word</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Agent">class <strong>Agent</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Agent">Agent</a>&nbsp;implements&nbsp;the&nbsp;basic&nbsp;functions&nbsp;of&nbsp;the&nbsp;agent,&nbsp;mainly&nbsp;the&nbsp;communication&nbsp;with&nbsp;the&nbsp;server.&nbsp;<br>
+The&nbsp;agent&nbsp;object&nbsp;implemented&nbsp;in&nbsp;this&nbsp;file&nbsp;is&nbsp;not&nbsp;capable&nbsp;of&nbsp;doing&nbsp;nothing&nbsp;but&nbsp;connecting&nbsp;to&nbsp;the&nbsp;server.&nbsp;<br>
+The&nbsp;object&nbsp;has&nbsp;interface&nbsp;functions&nbsp;score,&nbsp;adapt&nbsp;and&nbsp;generate.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Agent-__init__"><strong>__init__</strong></a>(self, name)</dt><dd><tt>Initializes&nbsp;the&nbsp;agent&nbsp;and&nbsp;connects&nbsp;it&nbsp;to&nbsp;the&nbsp;server.&nbsp;The&nbsp;agents&nbsp;are&nbsp;not&nbsp;meant&nbsp;to&nbsp;be<br>
+running&nbsp;without&nbsp;connection&nbsp;to&nbsp;the&nbsp;environment&nbsp;server.</tt></dd></dl>
+
+<dl><dt><a name="Agent-adapt"><strong>adapt</strong></a>(self, feedback)</dt><dd><tt>adapt&nbsp;is&nbsp;a&nbsp;function&nbsp;which&nbsp;takes&nbsp;a&nbsp;list&nbsp;of&nbsp;feedback&nbsp;as&nbsp;an&nbsp;input&nbsp;and&nbsp;adapts<br>
+its&nbsp;parameters&nbsp;according&nbsp;to&nbsp;the&nbsp;feedback</tt></dd></dl>
+
+<dl><dt><a name="Agent-connectToServer"><strong>connectToServer</strong></a>(self)</dt><dd><tt>connectToServer&nbsp;is&nbsp;a&nbsp;function&nbsp;which&nbsp;pings&nbsp;the&nbsp;server&nbsp;and&nbsp;returns&nbsp;True&nbsp;if&nbsp;<br>
+it&nbsp;succesfully&nbsp;connected&nbsp;the&nbsp;server.&nbsp;False&nbsp;otherwise.</tt></dd></dl>
+
+<dl><dt><a name="Agent-generate"><strong>generate</strong></a>(self)</dt><dd><tt>generate&nbsp;is&nbsp;a&nbsp;function&nbsp;which&nbsp;takes&nbsp;generates&nbsp;a&nbsp;phrase.</tt></dd></dl>
+
+<dl><dt><a name="Agent-getAllFeedback"><strong>getAllFeedback</strong></a>(self)</dt><dd><tt>getAllFeedback&nbsp;is&nbsp;a&nbsp;function&nbsp;which&nbsp;returns&nbsp;all&nbsp;the&nbsp;feedback&nbsp;given&nbsp;to&nbsp;every&nbsp;phrase.</tt></dd></dl>
+
+<dl><dt><a name="Agent-getMyFeedback"><strong>getMyFeedback</strong></a>(self)</dt><dd><tt>getMyFeedback&nbsp;is&nbsp;a&nbsp;function&nbsp;which&nbsp;returns&nbsp;all&nbsp;the&nbsp;feedback&nbsp;given&nbsp;to&nbsp;the&nbsp;agent.</tt></dd></dl>
+
+<dl><dt><a name="Agent-getUnscoredWords"><strong>getUnscoredWords</strong></a>(self)</dt><dd><tt>getUnscoredWords&nbsp;returns&nbsp;a&nbsp;set&nbsp;of&nbsp;words&nbsp;in&nbsp;the&nbsp;descending&nbsp;order&nbsp;of<br>
+their&nbsp;proposal&nbsp;time.</tt></dd></dl>
+
+<dl><dt><a name="Agent-getUrl"><strong>getUrl</strong></a>(self, query, param)</dt><dd><tt>getUrl&nbsp;implements&nbsp;the&nbsp;connection&nbsp;to&nbsp;the&nbsp;localhost&nbsp;server.</tt></dd></dl>
+
+<dl><dt><a name="Agent-lifeCycle"><strong>lifeCycle</strong></a>(self)</dt><dd><tt>lifeCycle&nbsp;defines&nbsp;the&nbsp;method&nbsp;how&nbsp;the&nbsp;agent&nbsp;behaves&nbsp;in&nbsp;each&nbsp;step.&nbsp;Whether&nbsp;it<br>
+scores&nbsp;a&nbsp;word/phrase,&nbsp;adapts&nbsp;to&nbsp;feedback&nbsp;or&nbsp;generates&nbsp;a&nbsp;new&nbsp;word/phrase.</tt></dd></dl>
+
+<dl><dt><a name="Agent-loadAttributes"><strong>loadAttributes</strong></a>(self)</dt><dd><tt>This&nbsp;functions&nbsp;parses&nbsp;the&nbsp;attributes&nbsp;file.&nbsp;The&nbsp;goal&nbsp;of&nbsp;the&nbsp;attributes&nbsp;file<br>
+is&nbsp;to&nbsp;define&nbsp;a&nbsp;set&nbsp;of&nbsp;functions,&nbsp;which&nbsp;take&nbsp;the&nbsp;phrase&nbsp;as&nbsp;input&nbsp;and&nbsp;return&nbsp;the<br>
+value&nbsp;of&nbsp;the&nbsp;attribute&nbsp;for&nbsp;the&nbsp;respective&nbsp;phrase.&nbsp;Please&nbsp;look&nbsp;at&nbsp;some&nbsp;of&nbsp;the&nbsp;examples<br>
+implemented&nbsp;in&nbsp;the&nbsp;attributes&nbsp;.&nbsp;<br>
+Also,&nbsp;these&nbsp;attributes&nbsp;are&nbsp;sent&nbsp;to&nbsp;the&nbsp;server,&nbsp;so&nbsp;if&nbsp;they&nbsp;are&nbsp;referred&nbsp;to&nbsp;by&nbsp;the<br>
+attribute&nbsp;name&nbsp;in&nbsp;the&nbsp;framing&nbsp;information,&nbsp;the&nbsp;other&nbsp;agent&nbsp;can&nbsp;use&nbsp;them.</tt></dd></dl>
+
+<dl><dt><a name="Agent-propose"><strong>propose</strong></a>(self, word, framing)</dt><dd><tt>propose&nbsp;takes&nbsp;the&nbsp;string&nbsp;word&nbsp;and&nbsp;framing&nbsp;information&nbsp;as&nbsp;input&nbsp;and&nbsp;sends&nbsp;this<br>
+to&nbsp;the&nbsp;server.<br>
+Disclaimer:<br>
+If&nbsp;you&nbsp;want&nbsp;to&nbsp;address&nbsp;some&nbsp;attributes&nbsp;of&nbsp;the&nbsp;word&nbsp;in&nbsp;the&nbsp;framing&nbsp;information<br>
+then&nbsp;the&nbsp;template&nbsp;you&nbsp;should&nbsp;follow&nbsp;is&nbsp;this:<br>
+....I&nbsp;find&nbsp;the&nbsp;attribute&nbsp;&lt;function_name&gt;&nbsp;to&nbsp;be&nbsp;as&nbsp;&lt;high/low/varying&gt;&nbsp;as&nbsp;I....<br>
+An&nbsp;example&nbsp;instance:<br>
+I&nbsp;propose&nbsp;a&nbsp;phrase&nbsp;"Jane&nbsp;is&nbsp;cool"&nbsp;because&nbsp;I&nbsp;find&nbsp;the&nbsp;attribute&nbsp;Phrase&nbsp;Length&nbsp;<br>
+to&nbsp;be&nbsp;as&nbsp;high&nbsp;as&nbsp;I&nbsp;prefer.&nbsp;<br>
+&nbsp;<br>
+The&nbsp;varying&nbsp;keyword&nbsp;is&nbsp;reserved&nbsp;for&nbsp;functions&nbsp;which&nbsp;analyse&nbsp;the&nbsp;phrase&nbsp;as&nbsp;a&nbsp;<br>
+list&nbsp;of&nbsp;words.&nbsp;For&nbsp;instance&nbsp;the&nbsp;vowel&nbsp;rate&nbsp;in&nbsp;words&nbsp;could&nbsp;be&nbsp;too&nbsp;varying.</tt></dd></dl>
+
+<dl><dt><a name="Agent-register"><strong>register</strong></a>(self)</dt><dd><tt>Registers&nbsp;the&nbsp;agents&nbsp;to&nbsp;the&nbsp;server.&nbsp;The&nbsp;agents&nbsp;are&nbsp;identified&nbsp;by&nbsp;the&nbsp;names.<br>
+Do&nbsp;NOT&nbsp;start&nbsp;many&nbsp;agents&nbsp;with&nbsp;the&nbsp;same&nbsp;name,&nbsp;as&nbsp;it&nbsp;might&nbsp;lead&nbsp;to<br>
+unexpected&nbsp;results.</tt></dd></dl>
+
+<dl><dt><a name="Agent-score"><strong>score</strong></a>(self, word)</dt><dd><tt>score&nbsp;is&nbsp;a&nbsp;function&nbsp;which&nbsp;takes&nbsp;a&nbsp;string&nbsp;as&nbsp;an&nbsp;input&nbsp;and&nbsp;returns&nbsp;an&nbsp;evaluation<br>
+of&nbsp;the&nbsp;this&nbsp;word.</tt></dd></dl>
+
+<dl><dt><a name="Agent-sendFeedback"><strong>sendFeedback</strong></a>(self, word, score, framing, wordtext<font color="#909090">=''</font>)</dt><dd><tt>sendFeedback&nbsp;takes&nbsp;the&nbsp;string&nbsp;word&nbsp;and&nbsp;framing&nbsp;information&nbsp;as&nbsp;input&nbsp;and&nbsp;sends&nbsp;this<br>
+to&nbsp;the&nbsp;server.<br>
+If&nbsp;you&nbsp;want&nbsp;to&nbsp;address&nbsp;some&nbsp;attributes&nbsp;of&nbsp;the&nbsp;word&nbsp;in&nbsp;the&nbsp;framing&nbsp;information<br>
+then&nbsp;the&nbsp;template&nbsp;you&nbsp;should&nbsp;follow&nbsp;is&nbsp;this:<br>
+....I&nbsp;find&nbsp;the&nbsp;attribute&nbsp;&lt;function_name&gt;&nbsp;to&nbsp;be&nbsp;as&nbsp;&lt;high/low/varying&gt;&nbsp;as&nbsp;I....<br>
+An&nbsp;example&nbsp;instance:<br>
+I&nbsp;do&nbsp;not&nbsp;like&nbsp;the&nbsp;phrase&nbsp;"I&nbsp;didn't&nbsp;do&nbsp;it"&nbsp;by&nbsp;agent&nbsp;Smith&nbsp;because&nbsp;I&nbsp;find&nbsp;the&nbsp;attribute&nbsp;<br>
+Phrase&nbsp;Vowels&nbsp;to&nbsp;be&nbsp;too&nbsp;high.</tt></dd></dl>
+
+<dl><dt><a name="Agent-start"><strong>start</strong></a>(self)</dt><dd><tt>This&nbsp;function&nbsp;connects&nbsp;the&nbsp;agent&nbsp;to&nbsp;the&nbsp;server&nbsp;and&nbsp;starts&nbsp;the&nbsp;endless&nbsp;cycle&nbsp;<br>
+of&nbsp;actions.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Feedback">class <strong>Feedback</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Feedback">Feedback</a>&nbsp;encapsulates&nbsp;the&nbsp;information&nbsp;of&nbsp;a&nbsp;feedback.&nbsp;These&nbsp;attributes&nbsp;can&nbsp;be&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;used&nbsp;in&nbsp;adaption&nbsp;function.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Feedback-__init__"><strong>__init__</strong></a>(self, word_id, scoring_agent_id, word, timestamp, explanation, creator_agent_id, score, framing)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Word">class <strong>Word</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Word">Word</a>&nbsp;encapsulates&nbsp;a&nbsp;word.&nbsp;This&nbsp;is&nbsp;a&nbsp;more&nbsp;convenient&nbsp;way&nbsp;for&nbsp;accessing&nbsp;the&nbsp;<br>
+attributes&nbsp;of&nbsp;the&nbsp;word.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Word-__init__"><strong>__init__</strong></a>(self, word_id, word, timestamp, agent_id, explanation)</dt></dl>
+
+</td></tr></table></td></tr></table>
+</body></html>
