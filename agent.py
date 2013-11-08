@@ -155,10 +155,10 @@ class Agent:
 		to the server.
 		If you want to address some attributes of the word in the framing information
 		then the template you should follow is this:
-		....I find the attribute <function_name> to be as <high/low/varying> as I....
+		....I find the attribute <function description> to be as <high/low/varying> as I....
 		An example instance:
 		I do not like the phrase "I didn't do it" by agent Smith because I find the attribute 
-		Phrase Vowels to be too high.
+		Phrase Vowels to be too high and I find the attribute Phrase Consonants to be too low.
 		"""
 		# Connect server and send the feedback
 		print "I am sending the feedback to word \"" + wordtext + "\" and the score is " + str(score)
@@ -185,8 +185,19 @@ class Agent:
 			#attributeName, attributeFuncton, attributeString, agent_id
 			self.getUrl("addAttribute", {"attributeName" : attributeName, "attributeFuncton" : attributeFuncton, "attributeString" : attributeString, "agent_id" : agent_id})
 		
+	def getFramingAttributes(self, feedback):
+		"""
+		getAllFeedback is a function which returns all the feedback given to every phrase.
+		"""
+		#I find the attribute <function description> to be as <high/low/varying>
+		pattern = re.compile("I find the attribute (.+?) to be too (high|low|varying)")
+		return patter.findall(feedback.explanation)
 		
 	def callFunction(self, function, parameter):
+		"""
+		This function is used for calling the different attribute function
+		loaded from the attributes.py file or from the server
+		"""
 		return self.ns[function](parameter)
 		
 	def loadAttributes(self):
@@ -213,6 +224,8 @@ class Agent:
 			functionName = re.findall("def (.+?)\(", function)[0]
 			code_local = compile(function, '<string>', 'exec')
 			exec code_local in self.ns
+			if not isStandard:
+				self.submitAttribute(name, function, functionName, self.id)
 		print self.callFunction("phraseConsonants", "asjfoasifhoi")
 		print self.callFunction("phraseVowels", "asjfoasifhoi")
 		print self.callFunction("phraseLength", "asjfoasifhoi")
@@ -225,7 +238,7 @@ class Agent:
 		self.loadAttributes()
 		exit()
 		if self.connectToServer():
-			self.register()
+			self.id = self.register()
 			while(True):
 				self.lifeCycle()
 		else:

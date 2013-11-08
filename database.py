@@ -25,8 +25,18 @@ class Database:
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_8 ON word_score(rowid, word_id, agent_id)")
 		
 	def addAttribute(self, attributeName, attributeFuncton, attributeString, agent_id):
-		cursor = self.db.execute("INSERT INTO attribtue(function_name, function, name, agent_id) VALUES(?, ?, ?, ?)", [attributeName, attributeFuncton, attributeString, agent_id])
-			self.db.commit()
+		cursor = self.db.execute("INSERT INTO attribute(function_name, function, name, agent_id) VALUES(?, ?, ?, ?)", [attributeName, attributeFuncton, attributeString, agent_id])
+		self.db.commit()
+		
+	def getAttribute(self, attributeName, agent_id):
+		cursor = self.db.execute("SELECT * FROM attribute WHERE name=? and agent_id=?" , [attributeName, agent_id])
+		result = cursor.fetchall()[0]
+		return result
+		
+	def getAllAttributes(self, attributeName, agent_id):
+		cursor = self.db.execute("SELECT * FROM attribute")
+		result = cursor.fetchall()
+		return result
 			
 	def addAgent(self, agent):
 		cursor = self.db.execute("SELECT * FROM agent WHERE id=?", [hashlib.md5(agent).hexdigest()])
