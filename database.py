@@ -12,16 +12,17 @@ class Database:
 	
 	def __init__(self):
 		self.db = sqlite3.connect("gamestate.sqlite")
-		self.db.execute("CREATE TABLE IF NOT EXISTS agent(id string primary key, name string)")
-		self.db.execute("CREATE TABLE IF NOT EXISTS word(id string primary key, word string, timestamp timestamp DEFAULT NOW, agent_id string, explanation string)")
-		self.db.execute("CREATE TABLE IF NOT EXISTS word_score(word_id string, agent_id string, score float, framing string, timestamp timestamp DEFAULT NOW)")
+		self.db.execute("CREATE TABLE IF NOT EXISTS agent(rowid int AUTOINCREMENT, id string primary key, name string)")
+		self.db.execute("CREATE TABLE IF NOT EXISTS word(rowid int AUTOINCREMENT, id string primary key, word string, timestamp timestamp DEFAULT NOW, agent_id string, explanation string)")
+		self.db.execute("CREATE TABLE IF NOT EXISTS word_score(rowid int AUTOINCREMENT, word_id string, agent_id string, score float, framing string, timestamp timestamp DEFAULT NOW)")
 		self.db.execute("CREATE TABLE IF NOT EXISTS attribute(function_name string, name string, agent_id string, function string)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_1 ON agent(id)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_2 ON word(id)")
-		self.db.execute("CREATE INDEX IF NOT EXISTS idx_3 ON word_score(word_id, agent_id)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_4 ON word(agent_id)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_5 ON attribute(agent_id)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_6 ON attribute(name, agent_id)")
+		self.db.execute("CREATE INDEX IF NOT EXISTS idx_7 ON word(rowid)")
+		self.db.execute("CREATE INDEX IF NOT EXISTS idx_8 ON word_score(rowid, word_id, agent_id)")
 			
 	def addAgent(self, agent):
 		cursor = self.db.execute("SELECT * FROM agent WHERE id=?", [hashlib.md5(agent).hexdigest()])
@@ -55,14 +56,9 @@ class Database:
 			cursor = self.db.execute("INSERT INTO word_score(word_id, agent_id, score,framing) VALUES(?, ?, ?, ?)", [word_id, agent_id, score, framing])
 			self.db.commit()
 			return "1"
-			
-	def getAgentFeedback(self, agent_id):
-		cursor = self.db.execute("SELECT word_score.word_id, word_score.agent_id, word.word, word.timestamp, word.explanation, word.agent_id, word_score.score FROM word_score LEFT JOIN word ON word_id=word.id WHERE word.agent_id=?", [agent_id])
-		scores = cursor.fetchall()
-		return scores
 		
-	def getAllFeedback(self):
-		cursor = self.db.execute("SELECT word_score.word_id, word_score.agent_id, word.word, word.timestamp, word.explanation, word.agent_id, word_score.score, word_score.framing FROM word_score LEFT JOIN word ON word_id=word.id")
+	def getAllFeedback(self, rowId):
+		cursor = self.db.execute("SELECT word_score.word_id, word_score.agent_id, word.word, word.timestamp, word.explanation, word.agent_id, word_score.score, word_score.rowId FROM word_score LEFT JOIN word ON word_id=word.id WHERE  word_score.rowid > ?", [rowId])
 		scores = cursor.fetchall()
 		return scores
 			

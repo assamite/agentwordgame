@@ -50,6 +50,12 @@ class Agent:
 		self.hostname = "127.0.0.1"
 		self.port = "15000"
 		self.host = "http://" + self.hostname + ":" + self.port  + "/"
+		# The goal of these parameters is to keep track, what were the last
+		# words which were included from the server during the last call. As it 
+		# does not make sense to ask for the same data all the time.
+		self.wordId = 0
+		self.wordScoreId = 0
+		self.feedback = list()
 		self.start()
 		
 	def getUrl(self, query, param):
@@ -158,29 +164,19 @@ class Agent:
 		print "I am sending the feedback to word \"" + wordtext + "\" and the score is " + str(score)
 		html = self.getUrl("setFeedback", {"agent_id" : self.id, "word_id": word, "score": score, "framing": framing})
 		
-	def getMyFeedback(self):
-		"""
-		getMyFeedback is a function which returns all the feedback given to the agent.
-		"""
-		print "I want to know what others think of my words"
-		p = pickle.loads(self.getUrl("getMyFeedback", {"agent_id" : self.id}))
-		feedback = list()
-		for pl in p:
-			feedback.append(Feedback(pl[0], pl[1], pl[2], pl[3], pl[4], pl[5], pl[6], pl[7]))
-		feedback = sorted(feedback, key=lambda x: x.timestamp, reverse=True)
-		return feedback
-		
 	def getAllFeedback(self):
 		"""
 		getAllFeedback is a function which returns all the feedback given to every phrase.
 		"""
 		print "I want to know what the general population thinks of different phrases"
-		p = pickle.loads(self.getUrl("getAllFeedback"))
-		feedback = list()
+		p = pickle.loads(self.getUrl("getAllFeedback"), {"rowId" : self.wordId})
 		for pl in p:
-			feedback.append(Feedback(pl[0], pl[1], pl[2], pl[3], pl[4], pl[5], pl[6], pl[7]))
-		feedback = sorted(feedback, key=lambda x: x.timestamp, reverse=True)
+			self.feedback.append(Feedback(pl[0], pl[1], pl[2], pl[3], pl[4], pl[5], pl[6], pl[7]))
+			self.wordId = max(self.wordId, pl[8])
 		return feedback
+		
+	def callFunction(self, function, parameter):
+		return self.ns[function](parameter)
 		
 	def loadAttributes(self):
 		"""
@@ -195,13 +191,20 @@ class Agent:
 		dat = f.read()
 		f.close()
 		attributes = re.findall("\<attribute\>(.+?)\<\/attribute\>", dat, re.DOTALL)
+		self.ns = {}
 		for attribute in attributes:
 			name = re.findall("\<name\>(.+?)\<\/name\>", attribute, re.DOTALL)
+			isStandard = False
+			if("(standard)" in name):
+				name = name.replace("(standard)", "")
+				isStandard = True
 			function = re.findall("\<function\>(.+?)\<\/function\>", attribute, re.DOTALL)[0]
 			functionName = re.findall("def (.+?)\(", function)
-			exec(function[0])
-			print functionName
-		print phraseConsonants("asoifsaoih asoi hfoaish sa")
+			code_local = compile(function, '<string>', 'exec')
+			exec code_local in self.ns
+		print self.callFunction("phraseConsonants", "asjfoasifhoi")
+		print self.callFunction("phraseVowels", "asjfoasifhoi")
+		print self.callFunction("phraseLength", "asjfoasifhoi")
 		
 	def start(self):
 		"""
