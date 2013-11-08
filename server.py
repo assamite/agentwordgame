@@ -39,6 +39,11 @@ class Server:
 		db = DB.Database()
 		db.addAttribute(attributeName, attributeFuncton, attributeString, agent_id)
 		
+	def getAttribute(self, attributeName, agent_id):
+		db = DB.Database()
+		attribute = db.getAttribute(attributeName, agent_id)
+		return pickle.dumps(attribute)
+		
 	def getUnscored(self, agent_id):
 		db = DB.Database()
 		words = db.getWords()
@@ -66,6 +71,8 @@ class Server:
 	getMyFeedback.exposed = True
 	getAllFeedback.exposed = True
 	setFeedback.exposed = True
+	addAttribute.exposed = True
+	getAttribute.exposed = True
 		
 cherrypy.config.update({'server.socket_port' : 15000})		
 cherrypy.quickstart(Server())

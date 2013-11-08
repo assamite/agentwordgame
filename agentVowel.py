@@ -19,6 +19,10 @@ class VowelAgent(agent.Agent):
 		of the agent in the context of adaption, scoring and generating.
 		"""
 		r = random.random()
+		attribute = self.getAttribute("string length", "62eb49e12fab557391bdd844a9efdd84")
+		print attribute
+		print self.callFunction(attribute, "Oh my god")
+		exit()
 		if r < 0.33:
 			self.generate()
 		if r > 0.33 and r < 0.66:

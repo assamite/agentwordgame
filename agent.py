@@ -195,6 +195,14 @@ class Agent:
 		pattern = re.compile("I find the attribute (.+?) to be too (high|low|varying)")
 		pattern.findall(feedback.explanation)
 		
+	def getAttribute(self, attributeName, agent_id):
+		# function_name string, name string, agent_id string, function string
+		dat = pickle.loads(self.getUrl("getAttribute", {"attributeName" : attributeName, "agent_id" : agent_id}))
+		if dat is not None:
+			self.loadAttribute(dat[3], dat[1], dat[0], dat[2])
+		return dat[1]
+		
+		
 	def callFunction(self, function, parameter):
 		"""
 		This function is used for calling the different attribute function
@@ -228,6 +236,7 @@ class Agent:
 		for attribute in attributes:
 			name = re.findall("\<name\>(.+?)\<\/name\>", attribute, re.DOTALL)[0]
 			isStandard = False
+			name = name.strip().lower()
 			if("(standard)" in name):
 				name = name.replace("(standard)", "")
 				isStandard = True
@@ -245,9 +254,9 @@ class Agent:
 		This function connects the agent to the server and starts the endless cycle 
 		of actions.
 		"""
-		self.loadAttributes()
 		if self.connectToServer():
 			self.id = self.register()
+			self.loadAttributes()
 			while(True):
 				self.lifeCycle()
 		else:

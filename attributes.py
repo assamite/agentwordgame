@@ -62,4 +62,15 @@ Number of Words (standard)
 def numberOfWords(phrase):
 	return len(phrase.split)
 	</function>
-</eattribute>
+</attribute>
+
+<attribute>
+# This attribute is not included and is considered an example.
+<name>
+String Length
+</name>
+<function>
+def oskargStrLen(phrase):
+	return len(phrase)
+	</function>
+</attribute>
