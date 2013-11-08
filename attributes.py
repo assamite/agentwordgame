@@ -6,7 +6,9 @@
 # NNB! In the name (e.g. Phrase length (standard)), the suffix (standard) refers
 # to the fact, that these are methods, which come with the original source.
 # For your own methods not add anything to the parenthesis (e.g. the example of numberOfWords)
-
+# NNB! Please add your first name and first letter of your last name in front of 
+# the function name. This is for avoiding clashing of the attribute names.
+#
 <sampleattribute>
 # This attribute is not included and is considered an example. This is included
 # as a standard attribute below
@@ -14,7 +16,7 @@
 Number of Words
 </name>
 <function>
-def numberOfWords(phrase):
+def oskarg_numberOfWords(phrase):
 	return len(phrase.split)
 	</function>
 </sampleattribute>

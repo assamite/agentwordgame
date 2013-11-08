@@ -31,7 +31,7 @@ class VowelAgent(agent.Agent):
 		elif r > 0.66:
 			## The result is the following:
 			## [Feedback, Feedback], see documentation
-			feedback = self.getMyFeedback()
+			feedback = self.getAllFeedback()
 			self.adapt(feedback)
 			
 		#time.sleep(1)

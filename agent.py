@@ -56,6 +56,7 @@ class Agent:
 		self.wordId = 0
 		self.wordScoreId = 0
 		self.feedback = list()
+		self.nameMapping = dict()
 		self.start()
 		
 	def getUrl(self, query, param):
@@ -144,6 +145,7 @@ class Agent:
 		"""
 		# Connect server and query for unrated words
 		data = pickle.loads(self.getUrl("getUnscored", {"agent_id" : self.id}))
+		dat = list()
 		for spl in data:
 			dat.append(Word(spl[0], spl[1], spl[2], spl[3], spl[4]))
 		dat = sorted(dat, key=lambda x: x.timestamp, reverse=True)
@@ -169,11 +171,11 @@ class Agent:
 		getAllFeedback is a function which returns all the feedback given to every phrase.
 		"""
 		print "I want to know what the general population thinks of different phrases"
-		p = pickle.loads(self.getUrl("getAllFeedback"), {"rowId" : self.wordId})
+		p = pickle.loads(self.getUrl("getAllFeedback", {"rowId" : self.wordId}))
 		for pl in p:
 			self.feedback.append(Feedback(pl[0], pl[1], pl[2], pl[3], pl[4], pl[5], pl[6], pl[7]))
 			self.wordId = max(self.wordId, pl[8])
-		return feedback
+		return self.feedback
 				
 	def submitAttribute(self, attributeName, attributeFuncton, attributeString, agent_id=-1):
 		# agent_id = -1 for standard functions
@@ -187,11 +189,11 @@ class Agent:
 		
 	def getFramingAttributes(self, feedback):
 		"""
-		getAllFeedback is a function which returns all the feedback given to every phrase.
+		getFramingAttributes is a function which returns all the feedback given to every phrase.
 		"""
 		#I find the attribute <function description> to be as <high/low/varying>
 		pattern = re.compile("I find the attribute (.+?) to be too (high|low|varying)")
-		return patter.findall(feedback.explanation)
+		pattern.findall(feedback.explanation)
 		
 	def callFunction(self, function, parameter):
 		"""
@@ -199,6 +201,15 @@ class Agent:
 		loaded from the attributes.py file or from the server
 		"""
 		return self.ns[function](parameter)
+		
+	#
+	# The function is the source code
+	# The function name is the natural language 'name' of the function (as in name in attributes.py)
+	# The functionString is the function name as in source code
+	def loadAttribute(self, function, functionName, functionString, agent_id=-1):
+		code_local = compile(function, '<string>', 'exec')
+		exec code_local in self.ns
+		self.nameMapping[functionName] = functionString
 		
 	def loadAttributes(self):
 		"""
@@ -215,15 +226,14 @@ class Agent:
 		attributes = re.findall("\<attribute\>(.+?)\<\/attribute\>", dat, re.DOTALL)
 		self.ns = {}
 		for attribute in attributes:
-			name = re.findall("\<name\>(.+?)\<\/name\>", attribute, re.DOTALL)
+			name = re.findall("\<name\>(.+?)\<\/name\>", attribute, re.DOTALL)[0]
 			isStandard = False
 			if("(standard)" in name):
 				name = name.replace("(standard)", "")
 				isStandard = True
 			function = re.findall("\<function\>(.+?)\<\/function\>", attribute, re.DOTALL)[0]
 			functionName = re.findall("def (.+?)\(", function)[0]
-			code_local = compile(function, '<string>', 'exec')
-			exec code_local in self.ns
+			self.loadAttribute(function, name, functionName)
 			if not isStandard:
 				self.submitAttribute(name, function, functionName, self.id)
 		print self.callFunction("phraseConsonants", "asjfoasifhoi")
@@ -236,7 +246,6 @@ class Agent:
 		of actions.
 		"""
 		self.loadAttributes()
-		exit()
 		if self.connectToServer():
 			self.id = self.register()
 			while(True):

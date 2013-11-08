@@ -28,9 +28,9 @@ class Server:
 		feedback = db.getAgentFeedback(agent_id)
 		return pickle.dumps(feedback)
 		
-	def getAllFeedback(self):
+	def getAllFeedback(self, rowId):
 		db = DB.Database()
-		feedback = db.getAllFeedback()
+		feedback = db.getAllFeedback(rowId)
 		return pickle.dumps(feedback)	
 	
 	# The attributeName is the natural language name, the function is the function
@@ -64,6 +64,7 @@ class Server:
 	ping.exposed = True
 	getUnscored.exposed = True
 	getMyFeedback.exposed = True
+	getAllFeedback.exposed = True
 	setFeedback.exposed = True
 		
 cherrypy.config.update({'server.socket_port' : 15000})		

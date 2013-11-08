@@ -12,9 +12,9 @@ class Database:
 	
 	def __init__(self):
 		self.db = sqlite3.connect("gamestate.sqlite")
-		self.db.execute("CREATE TABLE IF NOT EXISTS agent(rowid int AUTOINCREMENT, id string primary key, name string)")
-		self.db.execute("CREATE TABLE IF NOT EXISTS word(rowid int AUTOINCREMENT, id string primary key, word string, timestamp timestamp DEFAULT NOW, agent_id string, explanation string)")
-		self.db.execute("CREATE TABLE IF NOT EXISTS word_score(rowid int AUTOINCREMENT, word_id string, agent_id string, score float, framing string, timestamp timestamp DEFAULT NOW)")
+		self.db.execute("CREATE TABLE IF NOT EXISTS agent(rowid INTEGER primary key AUTOINCREMENT, id string , name string)")
+		self.db.execute("CREATE TABLE IF NOT EXISTS word(rowid INTEGER primary key AUTOINCREMENT, id string , word string, timestamp timestamp DEFAULT NOW, agent_id string, explanation string)")
+		self.db.execute("CREATE TABLE IF NOT EXISTS word_score(rowid INTEGER primary key AUTOINCREMENT, word_id string, agent_id string, score float, framing string, timestamp timestamp DEFAULT NOW)")
 		self.db.execute("CREATE TABLE IF NOT EXISTS attribute(function_name string, name string, agent_id string, function string)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_1 ON agent(id)")
 		self.db.execute("CREATE INDEX IF NOT EXISTS idx_2 ON word(id)")
