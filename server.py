@@ -32,6 +32,12 @@ class Server:
 		db = DB.Database()
 		feedback = db.getAllFeedback()
 		return pickle.dumps(feedback)	
+	
+	# The attributeName is the natural language name, the function is the function
+	# the attributeString is the string repreentation of the callable function	
+	def addAttribute(self, attributeName, attributeFuncton, attributeString, agent_id):
+		db = DB.Database()
+		db.addAttribute(attributeName, attributeFuncton, attributeString, agent_id)
 		
 	def getUnscored(self, agent_id):
 		db = DB.Database()

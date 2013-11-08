@@ -174,6 +174,17 @@ class Agent:
 			self.feedback.append(Feedback(pl[0], pl[1], pl[2], pl[3], pl[4], pl[5], pl[6], pl[7]))
 			self.wordId = max(self.wordId, pl[8])
 		return feedback
+				
+	def submitAttribute(self, attributeName, attributeFuncton, attributeString, agent_id=-1):
+		# agent_id = -1 for standard functions
+		#
+		#
+		if agent_id == -1:
+			return
+		else:
+			#attributeName, attributeFuncton, attributeString, agent_id
+			self.getUrl("addAttribute", {"attributeName" : attributeName, "attributeFuncton" : attributeFuncton, "attributeString" : attributeString, "agent_id" : agent_id})
+		
 		
 	def callFunction(self, function, parameter):
 		return self.ns[function](parameter)
@@ -199,7 +210,7 @@ class Agent:
 				name = name.replace("(standard)", "")
 				isStandard = True
 			function = re.findall("\<function\>(.+?)\<\/function\>", attribute, re.DOTALL)[0]
-			functionName = re.findall("def (.+?)\(", function)
+			functionName = re.findall("def (.+?)\(", function)[0]
 			code_local = compile(function, '<string>', 'exec')
 			exec code_local in self.ns
 		print self.callFunction("phraseConsonants", "asjfoasifhoi")
