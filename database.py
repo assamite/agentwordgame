@@ -76,7 +76,7 @@ class Database:
 			return "1"
 		
 	def getAllFeedback(self, rowId):
-		cursor = self.db.execute("SELECT word_score.word_id, word_score.agent_id, word.word, word.timestamp, word.explanation, word.agent_id, word_score.score, word_score.rowId FROM word_score LEFT JOIN word ON word_id=word.id WHERE  word_score.rowid > ?", [rowId])
+		cursor = self.db.execute("SELECT word_score.word_id, word_score.agent_id, word.word, word.timestamp, word.explanation, word.agent_id, word_score.score, word_score.framing, word_score.rowId FROM word_score LEFT JOIN word ON word_id=word.id WHERE  word_score.rowid > ?", [rowId])
 		scores = cursor.fetchall()
 		return scores
 			

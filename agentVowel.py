@@ -1,6 +1,7 @@
 import agent
 import random
 import time
+from agent import Feedback
 
 class VowelAgent(agent.Agent):
 	"""
@@ -19,10 +20,8 @@ class VowelAgent(agent.Agent):
 		of the agent in the context of adaption, scoring and generating.
 		"""
 		r = random.random()
-		attribute = self.getAttribute("string length", "62eb49e12fab557391bdd844a9efdd84")
-		print attribute
-		print self.callFunction(attribute, "Oh my god")
-		exit()
+		feedback = Feedback("1", "62eb49e12fab557391bdd844a9efdd84", 'I didn\'t do it', "", 'This is the explanation by the creator', "", 0.5, 'I do not like the phrase "I didn\'t do it" by agent Smith because I find the attribute number of words to be too high and I find the attribute string length to be too low')
+		fr = self.parseFraming(feedback)
 		if r < 0.33:
 			self.generate()
 		if r > 0.33 and r < 0.66:
@@ -31,7 +30,8 @@ class VowelAgent(agent.Agent):
 			unratedwords = self.getUnscoredWords()
 			if len(unratedwords) > 0:
 				scr = self.score(unratedwords[0].word)
-				self.sendFeedback(unratedwords[0].word_id, scr, wordtext=unratedwords[0].word)
+				framing = "This is not a nice word"
+				self.sendFeedback(unratedwords[0].word_id, scr, framing, wordtext=unratedwords[0].word)
 		elif r > 0.66:
 			## The result is the following:
 			## [Feedback, Feedback], see documentation

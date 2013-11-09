@@ -13,7 +13,7 @@
 # This attribute is not included and is considered an example. This is included
 # as a standard attribute below
 <name>
-Number of Words
+number of words
 </name>
 <function>
 def oskarg_numberOfWords(phrase):
@@ -23,7 +23,7 @@ def oskarg_numberOfWords(phrase):
 
 <attribute>
 <name>
-Phrase Length (standard)
+phrase length (standard)
 </name>
 	<function>
 def phraseLength(phrase):
@@ -33,7 +33,7 @@ def phraseLength(phrase):
 
 <attribute>
 <name>
-Phrase Vowels (standard)
+phrase vowels (standard)
 </name>
 <function>
 def phraseVowels(phrase):
@@ -44,7 +44,7 @@ def phraseVowels(phrase):
 
 <attribute>
 <name>
-Phrase Consonants (standard)
+phrase consonants (standard)
 </name>
 <function>
 def phraseConsonants(phrase):
@@ -56,18 +56,18 @@ def phraseConsonants(phrase):
 <attribute>
 # This attribute is not included and is considered an example.
 <name>
-Number of Words (standard)
+number of words (standard)
 </name>
 <function>
 def numberOfWords(phrase):
-	return len(phrase.split)
+	return len(phrase.split())
 	</function>
 </attribute>
 
 <attribute>
 # This attribute is not included and is considered an example.
 <name>
-String Length
+string length
 </name>
 <function>
 def oskargStrLen(phrase):

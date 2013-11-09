@@ -193,14 +193,14 @@ class Agent:
 		"""
 		#I find the attribute <function description> to be as <high/low/varying>
 		pattern = re.compile("I find the attribute (.+?) to be too (high|low|varying)")
-		pattern.findall(feedback.explanation)
+		return pattern.findall(feedback.framing)
 		
 	def getAttribute(self, attributeName, agent_id):
 		# function_name string, name string, agent_id string, function string
 		dat = pickle.loads(self.getUrl("getAttribute", {"attributeName" : attributeName, "agent_id" : agent_id}))
 		if dat is not None:
 			self.loadAttribute(dat[3], dat[1], dat[0], dat[2])
-		return dat[1]
+			return dat[1]
 		
 		
 	def callFunction(self, function, parameter):
@@ -219,6 +219,23 @@ class Agent:
 		exec code_local in self.ns
 		self.nameMapping[functionName] = functionString
 		
+	def parseFraming(self, feedback):
+		attributes = self.getFramingAttributes(feedback)
+		parsed = list()
+		for attribute in attributes:
+			try:
+				value = self.callFunction(self.nameMapping[attribute[0]], feedback.word)
+			except:
+				a = self.getAttribute(attribute[0], feedback.scoring_agent_id)
+				value = self.callFunction(a, feedback.word)
+			if value is not None:
+				# This returns the list of lists. Each listitem is:
+				# the callable function name, natural language representation, in the framing
+				# information whether its high or low, the value of the attribute for given phrase
+				parsed.append([feedback.word, self.nameMapping[attribute[0]], attribute[0], attribute[1], value])
+		return parsed
+			
+		
 	def loadAttributes(self):
 		"""
 		This functions parses the attributes file. The goal of the attributes file
@@ -236,18 +253,15 @@ class Agent:
 		for attribute in attributes:
 			name = re.findall("\<name\>(.+?)\<\/name\>", attribute, re.DOTALL)[0]
 			isStandard = False
-			name = name.strip().lower()
 			if("(standard)" in name):
 				name = name.replace("(standard)", "")
 				isStandard = True
+			name = name.strip().lower()
 			function = re.findall("\<function\>(.+?)\<\/function\>", attribute, re.DOTALL)[0]
 			functionName = re.findall("def (.+?)\(", function)[0]
 			self.loadAttribute(function, name, functionName)
 			if not isStandard:
 				self.submitAttribute(name, function, functionName, self.id)
-		print self.callFunction("phraseConsonants", "asjfoasifhoi")
-		print self.callFunction("phraseVowels", "asjfoasifhoi")
-		print self.callFunction("phraseLength", "asjfoasifhoi")
 		
 	def start(self):
 		"""
