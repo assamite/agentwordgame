@@ -44,7 +44,6 @@ class Database:
 			return hashlib.md5(agent).hexdigest()
 			
 	def getAttribute(self, attributeName, agent_id):
-		print attributeName, agent_id
 		cursor = self.db.execute("SELECT * FROM attribute WHERE natural_language_representation = ? AND agent_id = ?", [attributeName, agent_id])
 		result = cursor.fetchall()
 		if len(result) > 0:

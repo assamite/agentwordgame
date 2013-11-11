@@ -163,7 +163,7 @@ class Agent:
 		Phrase Vowels to be too high and I find the attribute Phrase Consonants to be too low.
 		"""
 		# Connect server and send the feedback
-		print "I am sending the feedback to word \"" + wordtext + "\" and the score is " + str(score)
+		print "I am sending the feedback to word \"" + wordtext + "\" and the score is " + str(score) + " because " + framing
 		html = self.getUrl("setFeedback", {"agent_id" : self.id, "word_id": word, "score": score, "framing": framing})
 		
 	def getAllFeedback(self):
@@ -251,17 +251,21 @@ class Agent:
 		attributes = re.findall("\<attribute\>(.+?)\<\/attribute\>", dat, re.DOTALL)
 		self.ns = {}
 		for attribute in attributes:
-			name = re.findall("\<name\>(.+?)\<\/name\>", attribute, re.DOTALL)[0]
+			name = re.findall("\<name\>(.+?)\<\/name\>", attribute, re.DOTALL)[0].strip()
 			isStandard = False
 			if("(standard)" in name):
 				name = name.replace("(standard)", "")
 				isStandard = True
+			else:
+				name += " (" + self.name + ")"
 			name = name.strip().lower()
 			function = re.findall("\<function\>(.+?)\<\/function\>", attribute, re.DOTALL)[0]
 			functionName = re.findall("def (.+?)\(", function)[0]
-			self.loadAttribute(function, name, functionName)
 			if not isStandard:
+				functionName = self.name + "_" + functionName
+				function = re.sub("def (.+?)\(", "def " + self.name + "_\g<1>(", function)
 				self.submitAttribute(name, function, functionName, self.id)
+			self.loadAttribute(function, name, functionName)
 		
 	def start(self):
 		"""

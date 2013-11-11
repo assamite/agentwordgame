@@ -16,7 +16,7 @@
 number of words
 </name>
 <function>
-def oskarg_numberOfWords(phrase):
+def numberOfWords(phrase):
 	return len(phrase.split)
 	</function>
 </sampleattribute>
@@ -70,7 +70,7 @@ def numberOfWords(phrase):
 string length
 </name>
 <function>
-def oskargStrLen(phrase):
+def strLen(phrase):
 	return len(phrase)
 	</function>
 </attribute>

@@ -20,7 +20,7 @@ class VowelAgent(agent.Agent):
 		of the agent in the context of adaption, scoring and generating.
 		"""
 		r = random.random()
-		feedback = Feedback("1", "62eb49e12fab557391bdd844a9efdd84", 'I didn\'t do it', "", 'This is the explanation by the creator', "", 0.5, 'I do not like the phrase "I didn\'t do it" by agent Smith because I find the attribute number of words to be too high and I find the attribute string length to be too low')
+		feedback = Feedback("1", "62eb49e12fab557391bdd844a9efdd84", 'I didn\'t do it', "", 'This is the explanation by the creator', "", 0.5, 'I do not like the phrase "I didn\'t do it" by agent Smith because I find the attribute string length (teamname_agentasd) to be too high and I find the attribute string length (teamname_agentasd) to be too low')
 		fr = self.parseFraming(feedback)
 		if r < 0.33:
 			self.generate()
@@ -74,7 +74,7 @@ class VowelAgent(agent.Agent):
 				word += vowels[random.randint(0,len(vowels)-1)]
 			else:
 				word += consonants[random.randint(0,len(consonants)-1)]
-		explanation = ""
+		explanation = "I find the attribute phrase vowels to be as high as I prefer"
 		## If the word is ready, propose it to the server
 		self.propose(word, explanation)
 		
