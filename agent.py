@@ -204,7 +204,7 @@ class Agent:
 		# function_name string, name string, agent_id string, function string
 		dat = pickle.loads(self.getUrl("getAttribute", {"attributeName" : attributeName, "agent_id" : agent_id}))
 		if dat is not None:
-			self.loadAttribute(dat[3], dat[1], dat[0], dat[2])
+			self.loadAttribute(dat[3], dat[0], dat[1], dat[2])
 			return dat[1]
 		
 		
@@ -220,9 +220,10 @@ class Agent:
 	# The function name is the natural language 'name' of the function (as in name in attributes.py)
 	# The functionString is the function name as in source code
 	def loadAttribute(self, function, functionName, functionString, agent_id=-1):
+		self.nameMapping[functionName] = functionString
+		print self.nameMapping
 		code_local = compile(function, '<string>', 'exec')
 		exec code_local in self.ns
-		self.nameMapping[functionName] = functionString
 		
 	def parseFraming(self, feedback):
 		"""
