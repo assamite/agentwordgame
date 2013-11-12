@@ -221,7 +221,6 @@ class Agent:
 	# The functionString is the function name as in source code
 	def loadAttribute(self, function, functionName, functionString, agent_id=-1):
 		self.nameMapping[functionName] = functionString
-		print self.nameMapping
 		code_local = compile(function, '<string>', 'exec')
 		exec code_local in self.ns
 		
@@ -275,6 +274,7 @@ class Agent:
 			name = name.strip().lower()
 			function = re.findall("\<function\>(.+?)\<\/function\>", attribute, re.DOTALL)[0]
 			functionName = re.findall("def (.+?)\(", function)[0]
+			self.loadAttribute(function, name, functionName)
 			if not isStandard:
 				functionName = self.name + "_" + functionName
 				function = re.sub("def (.+?)\(", "def " + self.name + "_\g<1>(", function)
