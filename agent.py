@@ -178,9 +178,9 @@ class Agent:
 		return self.feedback
 				
 	def submitAttribute(self, attributeName, attributeFuncton, attributeString, agent_id=-1):
-		# agent_id = -1 for standard functions
-		#
-		#
+		"""
+		This functions sends the attribute to the server for other agents to use.
+		"""
 		if agent_id == -1:
 			return
 		else:
@@ -196,6 +196,11 @@ class Agent:
 		return pattern.findall(feedback.framing)
 		
 	def getAttribute(self, attributeName, agent_id):
+		"""
+		This functions asks for the attribute from the server and loads it for 
+		the agent object. The function returns the natural language represantation
+		of the function.
+		"""
 		# function_name string, name string, agent_id string, function string
 		dat = pickle.loads(self.getUrl("getAttribute", {"attributeName" : attributeName, "agent_id" : agent_id}))
 		if dat is not None:
@@ -220,6 +225,14 @@ class Agent:
 		self.nameMapping[functionName] = functionString
 		
 	def parseFraming(self, feedback):
+		"""
+		This functions parses the attributes framing information from the feedback 
+		object. The function returns a list of list. Each listitem is one attribute, found
+		from the feedback and contains the following information:
+		[the word, the callable function name, the natural language representation of the
+		function, the valuation in the framing information (i.e. high, low, varying),
+		the value of this attribute for the word]
+		"""
 		attributes = self.getFramingAttributes(feedback)
 		parsed = list()
 		for attribute in attributes:
@@ -230,7 +243,7 @@ class Agent:
 				value = self.callFunction(a, feedback.word)
 			if value is not None:
 				# This returns the list of lists. Each listitem is:
-				# the callable function name, natural language representation, in the framing
+				# the word, the callable function name, natural language representation, in the framing
 				# information whether its high or low, the value of the attribute for given phrase
 				parsed.append([feedback.word, self.nameMapping[attribute[0]], attribute[0], attribute[1], value])
 		return parsed
