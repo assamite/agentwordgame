@@ -20,8 +20,8 @@ class VowelAgent(agent.Agent):
 		of the agent in the context of adaption, scoring and generating.
 		"""
 		r = random.random()
-		feedback = Feedback("1", "62eb49e12fab557391bdd844a9efdd84", 'I didn\'t do it', "", 'This is the explanation by the creator', "", 0.5, 'I do not like the phrase "I didn\'t do it" by agent Smith because I find the attribute string length (teamname_agentasd) to be too high and I find the attribute string length (teamname_agentasd) to be too low')
-		fr = self.parseFraming(feedback)
+		#feedback = Feedback("1", "62eb49e12fab557391bdd844a9efdd84", 'I didn\'t do it', "", 'This is the explanation by the creator', "", 0.5, 'I do not like the phrase "I didn\'t do it" by agent Smith because I find the attribute string length (teamname_agentasd) to be too high and I find the attribute string length (teamname_agentasd) to be too low')
+		#fr = self.parseFraming(feedback)
 		self.callFunction("strLen", "Common sense is not so common")
 		if r < 0.33:
 			self.generate()

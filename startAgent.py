@@ -1,4 +1,4 @@
-import agentVowel
+import freudAgent
 import sys
 
-a = agentVowel.VowelAgent("TeamName_Agent" + sys.argv[1])
+a = freudAgent.FreudAgent("TeamName_Agent" + sys.argv[1])

@@ -74,5 +74,5 @@ class Server:
 	addAttribute.exposed = True
 	getAttribute.exposed = True
 		
-cherrypy.config.update({'server.socket_port' : 15000})		
+cherrypy.config.update({'server.socket_port' : 15000 })		
 cherrypy.quickstart(Server())

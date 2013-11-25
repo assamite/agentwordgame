@@ -1,0 +1,7 @@
+.project
+.pydevproject
+*.db
+*.pyc
+*.sqlite
+.DS_Store
+np_gist.py
