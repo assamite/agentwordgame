@@ -198,7 +198,8 @@ class FreudAgent(agent.Agent):
         """
         
         for c in self.context_weights.keys():
-            self.context_weights[c] = 1
+            if self.context_weights[c] != -1:
+                self.context_weights[c] = 1
 
         for f in feedback:
             attributes = self.getFramingAttributes(f)
