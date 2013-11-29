@@ -24,14 +24,15 @@ class VowelAgent(agent.Agent):
 		#fr = self.parseFraming(feedback)
 		self.callFunction("strLen", "Common sense is not so common")
 		if r < 0.33:
-			self.generate()
-		if r > 0.33 and r < 0.66:
+			pass
+			#self.generate()
+		if r > 0.33 and r < 1.66:
 			## Gives the lists of lists, where each sublist is, ordered by timestamp desc:
 			## [Word, Word], see documentation
 			unratedwords = self.getUnscoredWords()
 			if len(unratedwords) > 0:
 				scr = self.score(unratedwords[0].word)
-				framing = "This is not a nice word"
+				framing = "I find the attribute vowels to be too high"
 				self.sendFeedback(unratedwords[0].word_id, scr, framing, wordtext=unratedwords[0].word)
 		elif r > 0.66:
 			## The result is the following:
@@ -39,7 +40,7 @@ class VowelAgent(agent.Agent):
 			feedback = self.getAllFeedback()
 			self.adapt(feedback)
 			
-		#time.sleep(1)
+		time.sleep(0.5)
 		
 	def score(self, word):
 		"""

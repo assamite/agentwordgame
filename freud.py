@@ -1,23 +1,23 @@
 import os
 import re
 import json
+import sets
 import random
 import time
 import operator
 import urllib2
 import logging
 import traceback
-from timeit import default_timer as timer
-from urlparse import urljoin
+import timeit
+import urlparse
+import pickle
 
-from google import search
+import google
 
-from bs4 import BeautifulSoup as bs
-from bs4 import CData
+import bs4
 import nltk
-from nltk.corpus import stopwords
 
-import Levenshtein as lv
+import Levenshtein
 
 
 import agent
@@ -44,14 +44,12 @@ class FreudAgent(agent.Agent):
         # Anything you want to initialize
         #self.name = "Siegmund Freud"
         self.name = name
-        self.vowelWeight = random.random()
-        self.consonantWeight = random.random()
-        self.generateVowel = 0.5
 
         # Dictionary, key: context-string value: POS-dictionary 
         # POS-dictionary contains key for each POS-tag (treebank tags) and 
-        # values are words for that tag in this context.
+        # values are words for that tag in this context as a set.
         self.POSs = {context: self.read_wordnet(word_file) }
+        self.accepted_pos = ['NN', 'NNP', 'JJ', 'RB', 'VB']
         # Dictionary, key: context-string, value: how many google search have
         # been done  to get urls for this context.
         self.context_google_amounts = {context: 0}
@@ -61,17 +59,20 @@ class FreudAgent(agent.Agent):
         self.context_weights = {context: 1.0}
         # Current proposes for new phrases.
         self.current_proposes = []     
+        # context of current_proposes
+        self.current_context = ""
         # Phrase - context dictionary for remembering former phrases agent has
         # published.
-        self.own_phrases = {}
+        self.own_phrases = {context: sets.Set()}
         
         self.logger = logging.getLogger(__name__)
         self.logger.addHandler(logging.StreamHandler())
+        self.logger.setLevel(logging.DEBUG)
         
         # Noun phrase extraction tools for arbitrary text.
         self.lemmatizer = nltk.WordNetLemmatizer()
         self.stemmer = nltk.stem.porter.PorterStemmer()
-        self.stopwords = stopwords.words('english')
+        self.stopwords = nltk.corpus.stopwords.words('english')
         self.chunker = nltk.RegexpParser(self.grammar)
         
         agent.Agent.__init__(self, self.name)
@@ -86,16 +87,16 @@ class FreudAgent(agent.Agent):
 
         if r < 0.33:
             self.generate()
+            #pass
         if r > 0.33 and r < 0.66:
             ## Gives the lists of lists, where each sublist is, ordered by timestamp desc:
             ## [Word, Word], see documentation
             unratedwords = self.getUnscoredWords()
-            w = unratedwords[0]
-            w 
-            
-            scr = self.score(w.word)
-            framing = "This is not a nice word"
-            self.sendFeedback(w.word_id, scr, framing, wordtext=w.word)
+            if len(unratedwords) > 0:
+                w = unratedwords[0]
+                score = self.score(w.word)
+                framing = "I like the sex...*ermm* score of this pen..*ahem* word to be very boo...unrelated to anything."
+                self.sendFeedback(w.word_id, score, framing, wordtext=w.word)
         elif r > 0.66:
             ## The result is the following:
             ## [Feedback, Feedback], see documentation
@@ -107,21 +108,23 @@ class FreudAgent(agent.Agent):
         
     def score(self, word):
         """
-        score implements a sample function which gives a score to a word. In this case
-        it the score is calculated such, that the word has a desired fraction of
-        consonants and vowels.
+        If phrases words are found from context dictionary, score will be goood.
+        returns | found words | / phrase length.
         """
-        vowels = 0.0
-        consonants = 0.0
-        vowelstr = "aeiou"
-        for letter in word:
-            if letter in vowelstr:
-                vowels += 1
-            else:
-                consonants += 1
-        total = vowels + consonants
-        scr = 1 - abs(self.vowelWeight - (vowels/total)) - abs(self.consonantWeight - (consonants/total))
-        return scr
+        words = word.split()
+        context_words = 0.0
+        
+        for w in words:
+            found = False
+            for context, poss in self.POSs.items():
+                for pos, word_list in poss.items():
+                    for word in word_list:
+                        if word == w:
+                            found = True
+            if found:
+                context_words += 1
+        
+        return context_words / len(words)
         
         
     def generate(self):
@@ -129,91 +132,157 @@ class FreudAgent(agent.Agent):
         new proposes with the current highest weighing context.
 
         """
-        if len(self.current_proposes) > 0:         
-            print("Getting sentences from old result.")
-            proposition = self.current_proposes.pop()
-            explanation = "I find the attribute inappropriateness in context of %s to be as high as I prefer" % (proposition[1])
-            self.propose(proposition[0].encode(encoding = 'ascii', errors = 'replace'), explanation)
-            
-        else:  
-            # Do a Google search for the most weighted context and get the first
-            # result which is not parsed yet in the agent's life cycle.
-            context = self.get_context()
+        if len(self.current_proposes) > 0:
+            print("Trying to get a phrase from old result.")
+            while len(self.current_proposes) > 0:     
+                proposition = self.current_proposes.pop()
+                if proposition[0] not in self.own_phrases[proposition[1]]:
+                    explanation = "I find the inappropriateness in context of %s to be ass butt.. *krhm* high as I prefer" % proposition[1]
+                    self.own_phrases[proposition[1]].add(proposition[0])
+                    self.propose(proposition[0].encode(encoding = 'ascii', errors = 'replace'), explanation)
+                    return
+              
+        # Do a Google search for the most weighted context and get the first
+        # result which is not parsed yet in the agent's life cycle.
+        context = self.get_context()
+        googles = self.context_google_amounts[context]
+        weight = self.context_weights[context]
+        print("Search %d for %s with weight %f" % (googles, context, weight))
+        
+        # Get next results until some freudified phrases are found.
+        found = False
+        while not found:
+            self.context_google_amounts[context] += 1
+            # Returns a generator which yields google search results.
+            results = google.search(context, num = 1, start = googles, stop = googles + 1, pause = 2.0)
             googles = self.context_google_amounts[context]
-            weight = self.context_weights[context]
-            print("Search %d for %s with weight %f" % (googles, context, weight))
             
-            # Get next results until some freudified phrases are found.
-            found = False
-            while not found:
-                self.context_google_amounts[context] += 1
-                # Returns a generator which yields google search results.
-                results = search(context, num = 1, start = googles, stop = googles + 1, pause = 2.0)
-                googles = self.context_google_amounts[context]
-                
-                # TODO: How does the generator exit if there are no more results?
-                try:
-                    url = results.next() 
-                    print url
-                except:
-                    break    
-                
-                # Freudify the source.
-                source = self.get_source(url)
-                if source is None:
-                    continue
-                phrases = self.freudify_source(source, url)
-                if len(phrases) > 0:
-                    found = True
-                    print("Found %d sentences from %s" % (len(phrases), url))
-                    self.current_proposes = phrases[1:]
-                    explanation = "I find the attribute inappropriateness in context of %s to be as high as I prefer" % (phrases[0][1])
-                    self.propose(phrases[0][0].encode(encoding = 'ascii', errors = 'replace'), explanation)
-                    break
-                
-            # No more results for this context I suppose. 
-            if found is False:
-                self.context_weights[context] = -1 
+            # TODO: How does the generator exit if there are no more results?
+            try:
+                url = results.next() 
+            except:
+                print traceback.format_exc()
+                break    
             
+            # Freudify the source.
+            source = self.get_source(url)
+            if source is None:
+                print "Could not retrieve source from %s" % url
+                continue
+            phrases = self.freudify_source(source, url)
+            if len(phrases) > 0:
+                found = True
+                print("Found %d sentences from %s" % (len(phrases), url))
+                self.current_context = context
+                if len(phrases) >= 20:
+                    self.current_proposes = phrases[1:20]
+                else:
+                    self.current_prposes = phrases[1:len(phrases)]
+                explanation = "I find the inappropriateness in context of %s to be ass butt.. *krhm* high as I prefer" % context
+                self.propose(phrases[0][0].encode(encoding = 'ascii', errors = 'replace'), explanation)
+                break
             
-            
-            #result = gs.get_results()[googles % (gs.page * 50)]
-            #print result.url
-            
-            
-            #explanation = "I find the attribute inappropriateness to be as high as I prefer"
-            #self.propose(word, explanation)
+        # No more results for this context I suppose. 
+        if found is False:
+            self.context_weights[context] = -1 
     
         
     def adapt(self, feedback):
         """
-        adapt implements a sample function which changes the self.generateVowel
-        according to the feedback of other agents.
+        Adapt to other agents by doing two things:
+            if framing context is observed first time, add words from it to
+            context dictionary
+            
+            adjust context weight of the attribute depending on if it has been
+            rated too high or low.
         """
-        vowelsCount = 0.0
-        consCount = 0.0
-        vowels = "aeiou"
-        consonants = "bcdfghjklmnpqrstvxyz"
-        for f in feedback:
-            for c in f.word:
-                if c in vowels:
-                    vowelsCount += 1*f.score
-                else:
-                    consCount += 1*f.score
-        if vowelsCount + consCount != 0:
-            self.generateVowel = vowelsCount/(vowelsCount + consCount)
         
+        for c in self.context_weights.keys():
+            self.context_weights[c] = 1
+
+        for f in feedback:
+            attributes = self.getFramingAttributes(f)
+            for a in attributes:
+                # If readable name of the attribute is not in the contexts, add it
+                if a[0] not in self.POSs.keys():
+                    print "Adding %s to context dictionary and doing a google search for words. This might take a while" % a[0]
+                    self.POSs[a[0]] = {}
+                    self.context_google_amounts[a[0]] = 0
+                    self.context_weights[a[0]] = 1
+                    self.own_phrases[a[0]] = sets.Set()
+                    self.get_new_words(a[0])
+                
+                # Adjust context weights depending on general opinion
+                if self.context_weights[a[0]] != -1: 
+                    if a[1] == 'high':
+                        self.context_weights[a[0]] *= 0.99 
+                        print "Adjusting %s weight, now %f" % (a[0], self.context_weights[a[0]])
+                        
+                    if a[1] == 'low':
+                        self.context_weights[a[0]] *= 1.01 
+                        print "Adjusting %s weight, now %f" % (a[0], self.context_weights[a[0]])
+                
+    
+    def get_context(self):
+        ''' Get currently highest weighing context. '''
+        highest = -100000
+        context = self.context_weights.keys()[0]
+        for c, i in self.context_weights.items():
+            if i > highest:
+                highest = i
+                context = c
+        
+        self.context_weights[context] *= 0.95
+        return context
+    
+    def get_new_words(self, context):
+        '''
+            Do google search with given context and add most observed words to 
+            context's word lists in self.POSs with appropriate tags.
+        '''
+        googles = self.context_google_amounts[context]
+        results = google.search(context, num = 15, start = googles, stop = googles + 15, pause = 0)
+        self.context_google_amounts[context] = googles + 15
+        words = {}
+        
+        for i in range(15):
+            try:
+                url = results.next()
+                source = self.get_source(url)
+                if source is not None:
+                    ret = self.get_word_amounts(source, url)
+                    for w in ret.keys():
+                        amount = ret[w]
+                        if w in words.keys():
+                            words[w] += amount
+                        else:
+                            words[w] = amount
+            except:
+                print traceback.format_exc()
+                
+        word_list = [(w, words[w]) for w in words.keys()]
+        word_list = sorted(word_list, key=operator.itemgetter(1))
+        word_list.reverse()
+        new_words = 100 if len(word_list) > 100 else len(word_list)
+        if context not in self.POSs: self.POSs[context] = {}
+        for i in range(new_words):
+            w = word_list[i][0]
+            if len(w[0]) > 3:
+                if w[1] not in self.POSs[context]: self.POSs[context][w[1]] = sets.Set()
+                self.POSs[context][w[1]].add(w[0].lower())
+        
+        amount = 0
+        for pos in self.POSs[context].keys():
+            amount += self.POSs[context][pos]     
+        print "Added %d words to %s" % (amount, context)
+
+             
 
     ####################################################
     # Utility functions for Freud agent. 
     
     # Adapted from: https://github.com/assamite/Slipper
-    ####################################################
-    
-    def get_context(self):
-        ''' Get currently highest weighing context. '''
-        return 'sexuality'
-        
+    ####################################################      
         
     def get_source(self, url):
         '''
@@ -230,17 +299,22 @@ class FreudAgent(agent.Agent):
             self.logger.error("Error stack \n %s" % traceback.format_exc())
             return None
         if response.getcode() and response.getcode() > 399: 
-            return response.getcode()
+            return None
         page_source = response.read()
         if len(page_source) > 10000000: # Magic number
-            return -1
+            return None
         return page_source
     
     
     def read_wordnet(self, filepath):
         '''
-            Reads 'sexuality.txt' and returns it as a dictionary with part of speech
-            tags as keys and words as values. 
+            Reads file in given filepath and returns it as a dictionary with 
+            part of speech tags as keys and words as values. File in question
+            should conform to format where each line starts with a string 
+            starting with n (noun), a (adjective), v (verb), r (adverb) followed 
+            with a white space and list of words, ie.
+            n#155532 cat dog human
+            v#43463 run speak walk
         '''
         f = open(filepath)
         s_words = {}
@@ -252,47 +326,14 @@ class FreudAgent(agent.Agent):
             ws = t[1:]
             for w in ws:
                 w = w.replace('_', ' ')
+                w = w.encode('ascii', 'replace')
                 try:
-                    s_words[tag].append(w)
+                    s_words[tag].add(w)
                 except KeyError:
-                    s_words[tag] = [w]
+                    s_words[tag] = sets.Set(w)
                     
         s_words['NNP'] = s_words['NN']
         return s_words
-    
-    
-    def replace_document_words(self, words, tagged_words):
-        '''
-            Iterates over all the words in the document and finds suitable replacing 
-            words for nouns, adjectives and adverbs from POSs POS-dictionary.
-        
-            Parameters
-            words:            iterable of tokenized raw words.
-            tagged_words:    iterable of (raw word, tag) pairs
-        
-            Returns altered iterable where some of the words may have been replaced
-            with the words from POSs.
-        '''
-        altered_words = []
-        
-        # magic numbers for max levenshtein distance. key: len(word), value: max lv
-        maxlv = {3: 1, 4: 1, 5: 2, 6: 2, 7:2, 8: 3, 9: 3, 10: 3, 11: 3}
-        alter_amount = 0
-    
-        for i, w in enumerate(words):
-            altered_words.append(w)
-            if len(w) < 3: continue
-            tag = tagged_words[i][1][:2]
-            if tag in self.POSs['sexuality'].keys():
-                lv = 1
-                if len(w) in maxlv.keys(): lv = maxlv[len(w)]
-                else: lv = 4
-                rp = self.replace_word(lv, tag, w)[0]    
-                if not rp.lower() == w.lower():
-                    if w[0].isupper(): rp = rp.title()
-                    altered_words[i] = rp    
-                    alter_amount += 1
-        return altered_words, alter_amount
     
     
     def replace_word(self, tag, word):
@@ -318,55 +359,12 @@ class FreudAgent(agent.Agent):
         for context, POS in self.POSs.items():
             if tag in POS:
                 for w in POS[tag]:
-                    dists.append((w, lv.distance(word, w), context))
+                    dists.append((w, Levenshtein.distance(word, w), context))
                 dists = sorted(dists, key=operator.itemgetter(1))
             if len(dists) > 0 and dists[0][1] <= maxlv: # Let's take first one always. It's good
                 return dists[0]      # to be coherent with these, so that some 
             else:                            # sense is maintained in the text.
                 return (word, 0, '')
-        
-    
-    # TODO: FIX ME
-    def prettify_sentence(self, replaced_words):
-        '''
-            Prettify given iterable that represents words and part of words and 
-            other characters of the sentence. ie, there can be indeces with only
-            "'ll" or "'" in them.
-            
-            Kinda hackish code, which could be looked into at some point of time.
-            
-            Parameters:
-            replaced_words:    Iterable with sentence's words and other characters. 
-                            This iterable is considered to be created by nltk >=2.04
-                            part of speech tagging (and replacing some words in it).
-            
-            Returns prettified sentence as one string.
-        '''
-        pretty_sentence = ""
-        last_word = ""
-        enc_hyphen = False
-        
-        for w in replaced_words:
-            if w in ["``", "\""]:
-                pretty_sentence += " \""
-            elif w == "''":
-                pretty_sentence += "\""
-            elif w in [',', '!', '?', '.', '%', '\"', "n't", "'re", "'s", ";", ":", ")", "]", "}", "'m", "'ll", "'s", "'d"]:
-                pretty_sentence += w
-            elif w in ['\'']: 
-                if enc_hyphen:
-                    pretty_sentence += w
-                    enc_hyphen = False    
-            elif last_word in ["``", "(", "[", "{", "\""]:
-                pretty_sentence += w    
-            else:
-                pretty_sentence += " " + w
-            if w.startswith("'") and w not in ["'m", "'d", "'re", "'s", "'ll"]: 
-                enc_hyphen = True
-            last_word = w
-            
-        pretty_sentence.strip()  
-        return pretty_sentence
         
         
     # FIXME: probably not everything is correct in here.    
@@ -398,6 +396,44 @@ class FreudAgent(agent.Agent):
             return False
         return True
         
+    def get_word_amounts(self, source, url):
+        s = timeit.default_timer()
+        soup = bs4.BeautifulSoup(source, 'lxml')
+        self.logger.info("Souped %s in %s" % (url, str(timeit.default_timer() - s)))
+        words = {}
+        
+        try:
+            t = timeit.default_timer()
+            for t in soup.body.descendants:
+                if not hasattr(t, 'name'): continue
+        
+                if self.visible_html_tag(t) and hasattr(t, 'string'):
+                    if t.string == None: continue
+                    if isinstance(t, bs4.CData): 
+                        continue
+                    
+                    sentences = t.string.encode('ascii', 'replace')
+                    sentences = nltk.sent_tokenize(sentences)
+                    for s in sentences:
+                        sent = nltk.word_tokenize(s)
+                        tagged = nltk.tag.pos_tag(sent)
+                        if len(tagged) > 2:
+                            for w in tagged:
+                                if w[0] not in self.stopwords and w[1] in self.accepted_pos:       
+                                    if w in words.keys():
+                                        words[w] += 1
+                                    else: 
+                                        words[w] = 1
+                                #print w, words[w]
+                    
+            #self.logger.info("Got word amounts %s in %s" % (url, str(timeit.default_timer() - t)))
+        except:
+            self.logger.info("get_word_amounts has blown, with stack trace: \n %s" % traceback.format_exc())
+            return []
+            
+        self.logger.info("Got %d words from: %s " % (len(words.keys()), url))
+        return words
+        
         
     def freudify_source(self, source, url):
         '''
@@ -413,17 +449,17 @@ class FreudAgent(agent.Agent):
             
             Returns changed source code.
         '''
-        s = timer()
-        soup = bs(source, 'lxml')
-        self.logger.info("Souped %s in %s" % (url, str(timer() - s)))
+        s = timeit.default_timer()
+        soup = bs4.BeautifulSoup(source, 'lxml')
+        self.logger.info("Souped %s in %s" % (url, str(timeit.default_timer() - s)))
         phrases = []
         
         try:
-            t = timer()
+            t = timeit.default_timer()
             phrases = self.extract_noun_phrases(soup)
-            self.logger.info("Freudified %s in %s" % (url, str(timer() - t)))
+            self.logger.info("Freudified %s in %s" % (url, str(timeit.default_timer() - t)))
         except:
-            self.logger.info("utils.slip_sentences has blown, with stack trace: \n %s" % traceback.format_exc())
+            self.logger.info("freudify_source has blown, with stack trace: \n %s" % traceback.format_exc())
             return []
             
         self.logger.info("Finished tagging source from: %s " % url)
@@ -440,7 +476,7 @@ class FreudAgent(agent.Agent):
     
             if self.visible_html_tag(t) and hasattr(t, 'string'):
                 if t.string == None: continue
-                if isinstance(t, CData): 
+                if isinstance(t, bs4.CData): 
                     continue
                 
                 phrases = self.extract(t.string)
@@ -494,16 +530,18 @@ class FreudAgent(agent.Agent):
         tree = self.chunker.parse(postoks)
         terms = self._get_terms(tree)
         
-        phrases = []
+        phrases = sets.Set()
         
         # Loop through all the noun phrases and try to freudify them.
         for term in terms:
+            if (len(term)) < 2: continue
             changed = False
             context = ""
             phrase = []
             for part in term:
                 word, tag = part
-                phrase.append(word)
+                word = word.encode('ascii', 'replace')
+                phrase.append(word.lower())
                 rpl = self.replace_word(tag[:2], word)
                 if len(rpl[2]) > 0:
                     context = rpl[2]
@@ -511,8 +549,12 @@ class FreudAgent(agent.Agent):
                     changed = True
             if changed:
                 phrase = " ".join(phrase).strip()
-                phrases.append((phrase, context))    
-                
+                phrase.encode('ascii', 'replace')
+                phrase = str(phrase)
+                if phrase not in self.own_phrases[context]:
+                    phrases.add((str(phrase), context))    
+          
+        phrases = list(phrases)      
         return phrases
           
     def _leaves(self, tree):
