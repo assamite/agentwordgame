@@ -247,7 +247,7 @@ class FreudAgent(agent.Agent):
         self.context_google_amounts[context] = googles + 15
         words = {}
         
-        for i in range(2):
+        for i in range(15):
             try:
                 url = results.next()
                 source = self.get_source(url)
