@@ -102,8 +102,9 @@ class FreudAgent(agent.Agent):
             ## [Feedback, Feedback], see documentation
             feedback = self.getAllFeedback()
             self.adapt(feedback)
+            #pass
             
-        time.sleep(0.5)
+        time.sleep(0.2)
         
         
     def score(self, word):
