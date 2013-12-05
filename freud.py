@@ -247,7 +247,7 @@ class FreudAgent(agent.Agent):
         self.context_google_amounts[context] = googles + 15
         words = {}
         
-        for i in range(15):
+        for i in range(2):
             try:
                 url = results.next()
                 source = self.get_source(url)
@@ -275,7 +275,7 @@ class FreudAgent(agent.Agent):
         
         amount = 0
         for pos in self.POSs[context].keys():
-            amount += self.POSs[context][pos]     
+            amount += len(self.POSs[context][pos])   
         print "Added %d words to %s" % (amount, context)
 
              
@@ -394,7 +394,7 @@ class FreudAgent(agent.Agent):
                 if re.match(r'display:(\s*)none', element.parent['style']):
                     return False
             '''
-        elif re.match(u'.*<!--.*-->.*', str(element), re.DOTALL):
+        elif re.match(u'.*<!--.*-->.*', element.encode('utf8'), re.DOTALL):
             return False
         return True
         
@@ -478,6 +478,7 @@ class FreudAgent(agent.Agent):
     
             if self.visible_html_tag(t) and hasattr(t, 'string'):
                 if t.string == None: continue
+                if len(t.string) == 0: continue
                 if isinstance(t, bs4.CData): 
                     continue
                 
